@@ -1,181 +1,185 @@
 import streamlit as st
-from utils.session import initialize_state
 
-st.set_page_config(
-    page_title="Pakistan Solar Panel Requirement System",
-    page_icon="🌞",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+def inject_global_css():
+    st.markdown("""
+    <style>
+    .stApp {
+        background: linear-gradient(135deg, #eef4ff 0%, #edfdf7 100%);
+    }
 
-initialize_state()
+    .block-container {
+        max-width: 1200px;
+        padding-top: 1.2rem;
+        padding-bottom: 2rem;
+    }
 
-profile = st.session_state.get("profile", {})
-results = st.session_state.get("results", {})
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #08152f 0%, #12285f 55%, #1f3d8a 100%);
+    }
+    [data-testid="stSidebar"] * {
+        color: white !important;
+    }
 
-st.markdown("""
-<style>
-/* App background */
-.stApp {
-    background: linear-gradient(135deg, #f4f7ff 0%, #eefbf7 100%);
-}
+    .hero-card {
+        background: linear-gradient(135deg, #2563eb 0%, #06b6d4 55%, #10b981 100%);
+        padding: 26px 28px;
+        border-radius: 28px;
+        color: white;
+        box-shadow: 0 16px 40px rgba(37, 99, 235, 0.22);
+        margin-bottom: 18px;
+    }
 
-/* Main container */
-.block-container {
-    padding-top: 1.5rem;
-    padding-bottom: 2rem;
-    max-width: 1200px;
-}
+    .hero-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 6px;
+    }
 
-/* Sidebar */
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0f172a 0%, #1e3a8a 100%);
-}
-[data-testid="stSidebar"] * {
-    color: white !important;
-}
-[data-testid="stSidebar"] .stMarkdown h1,
-[data-testid="stSidebar"] .stMarkdown h2,
-[data-testid="stSidebar"] .stMarkdown h3 {
-    color: #ffffff !important;
-}
+    .hero-subtitle {
+        font-size: 1rem;
+        opacity: 0.95;
+    }
 
-/* Header card */
-.hero-card {
-    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 50%, #10b981 100%);
-    padding: 28px 30px;
-    border-radius: 24px;
-    color: white;
-    box-shadow: 0 14px 35px rgba(37, 99, 235, 0.25);
-    margin-bottom: 20px;
-}
-.hero-title {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin-bottom: 6px;
-}
-.hero-subtitle {
-    font-size: 1rem;
-    opacity: 0.95;
-}
+    .page-card {
+        background: rgba(255,255,255,0.92);
+        padding: 22px;
+        border-radius: 24px;
+        border: 1px solid rgba(226,232,240,0.95);
+        box-shadow: 0 10px 28px rgba(15,23,42,0.07);
+        margin-bottom: 18px;
+    }
 
-/* Summary cards */
-.metric-card {
-    background: white;
-    border-radius: 20px;
-    padding: 18px 20px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    margin-bottom: 14px;
-}
-.metric-label {
-    font-size: 0.95rem;
-    color: #475569;
-    margin-bottom: 8px;
-    font-weight: 600;
-}
-.metric-value {
-    font-size: 1.55rem;
-    font-weight: 800;
-    color: #0f172a;
-}
+    .metric-card {
+        background: white;
+        border-radius: 22px;
+        padding: 18px 20px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        margin-bottom: 14px;
+    }
 
-/* Section card */
-.section-card {
-    background: rgba(255,255,255,0.88);
-    border-radius: 22px;
-    padding: 22px;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    margin-top: 14px;
-    margin-bottom: 18px;
-}
+    .metric-label {
+        font-size: 0.95rem;
+        color: #475569;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
 
-/* Buttons */
-.stButton > button {
-    background: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 0.7rem 1.2rem;
-    font-weight: 700;
-    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
-}
-.stButton > button:hover {
-    filter: brightness(1.05);
-    transform: translateY(-1px);
-}
+    .metric-value {
+        font-size: 1.55rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
 
-/* Inputs */
-.stTextInput > div > div > input,
-.stNumberInput input,
-.stSelectbox div[data-baseweb="select"] > div,
-.stTextArea textarea {
-    border-radius: 12px !important;
-}
+    .section-title {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 10px;
+    }
 
-/* Info alert */
-.custom-note {
-    background: linear-gradient(90deg, rgba(37,99,235,0.12), rgba(16,185,129,0.12));
-    border: 1px solid rgba(37,99,235,0.18);
-    padding: 16px 18px;
-    border-radius: 16px;
-    color: #0f172a;
-    font-weight: 500;
-}
-</style>
-""", unsafe_allow_html=True)
+    .note-box {
+        background: linear-gradient(90deg, rgba(37,99,235,0.10), rgba(16,185,129,0.10));
+        border: 1px solid rgba(37,99,235,0.18);
+        padding: 15px 17px;
+        border-radius: 16px;
+        color: #0f172a;
+        font-weight: 500;
+    }
 
-st.sidebar.markdown("## ⚡ Quick Summary")
-st.sidebar.markdown(f"**Customer:** {profile.get('name', 'Not set')}")
-st.sidebar.markdown(f"**City:** {profile.get('city', 'Not set')}")
-st.sidebar.markdown(f"**Utility:** {profile.get('utility', 'Not set')}")
-st.sidebar.markdown(f"**System Type:** {profile.get('system_type', 'Not set')}")
-st.sidebar.markdown("---")
-st.sidebar.markdown(f"**Solar Size:** {results.get('solar_size_kw', 0.0):.2f} kW")
-st.sidebar.markdown(f"**Battery:** {results.get('battery_kwh', 0.0):.2f} kWh")
-st.sidebar.markdown(f"**Cost:** PKR {results.get('total_cost', 0):,.0f}")
+    .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 10px;
+    }
 
-st.markdown("""
-<div class="hero-card">
-    <div class="hero-title">🌞 Pakistan Solar Panel Requirement System</div>
-    <div class="hero-subtitle">
-        Smart solar sizing, backup planning, pricing, and quotation generation for Pakistan households.
-    </div>
-</div>
-""", unsafe_allow_html=True)
+    .mini-card {
+        background: white;
+        border-radius: 18px;
+        padding: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 6px 18px rgba(15,23,42,0.05);
+    }
 
-col1, col2, col3 = st.columns(3)
+    .mini-label {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
 
-with col1:
+    .mini-value {
+        color: #0f172a;
+        font-size: 1.02rem;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .stButton > button {
+        background: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 0.72rem 1.2rem;
+        font-weight: 700;
+        box-shadow: 0 10px 18px rgba(37, 99, 235, 0.20);
+    }
+
+    .stButton > button:hover {
+        filter: brightness(1.03);
+    }
+
+    .stDownloadButton > button {
+        background: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 0.72rem 1.2rem;
+        font-weight: 700;
+    }
+
+    .stTextInput input,
+    .stNumberInput input,
+    .stTextArea textarea,
+    .stSelectbox div[data-baseweb="select"] > div {
+        border-radius: 14px !important;
+    }
+
+    @media (max-width: 900px) {
+        .hero-title {
+            font-size: 1.7rem;
+        }
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+        .block-container {
+            padding-left: 0.8rem;
+            padding-right: 0.8rem;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+
+def render_page_header(title, subtitle):
     st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-label">Estimated Solar Size</div>
-        <div class="metric-value">{results.get('solar_size_kw', 0.0):.2f} kW</div>
+    <div class="page-card">
+        <div class="section-title">{title}</div>
+        <div class="note-box">{subtitle}</div>
     </div>
     """, unsafe_allow_html=True)
 
-with col2:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-label">Battery Backup</div>
-        <div class="metric-value">{results.get('battery_kwh', 0.0):.2f} kWh</div>
-    </div>
-    """, unsafe_allow_html=True)
 
-with col3:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-label">Estimated Cost</div>
-        <div class="metric-value">PKR {results.get('total_cost', 0):,.0f}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-st.markdown("""
-<div class="section-card">
-    <h3 style="margin-top:0; color:#0f172a;">🚀 Recommended Workflow</h3>
-    <div class="custom-note">
-        1) Customer Profile → 2) Appliances → 3) Solar Selection → 4) Backup → 5) Roof → 6) Pricing → 7) Results → 8) Export PDF
-    </div>
-</div>
-""", unsafe_allow_html=True)
+def render_sidebar(profile, results):
+    st.sidebar.markdown("## ⚡ Quick Summary")
+    st.sidebar.markdown(f"**Customer:** {profile.get('name', 'Not set') or 'Not set'}")
+    st.sidebar.markdown(f"**Mobile:** {profile.get('mobile', 'Not set') or 'Not set'}")
+    st.sidebar.markdown(f"**City:** {profile.get('city', 'Not set') or 'Not set'}")
+    st.sidebar.markdown(f"**Utility:** {profile.get('utility', 'Not set') or 'Not set'}")
+    st.sidebar.markdown(f"**System Type:** {profile.get('system_type', 'Not set') or 'Not set'}")
+    st.sidebar.markdown("---")
+    st.sidebar.markdown(f"**Solar Size:** {results.get('solar_size_kw', 0.0):.2f} kW")
+    st.sidebar.markdown(f"**Battery:** {results.get('battery_kwh', 0.0):.2f} kWh")
+    st.sidebar.markdown(f"**Cost:** PKR {results.get('total_cost', 0):,.0f}")
