@@ -1,17 +1,30 @@
 import streamlit as st
+from utils.session import initialize_state
 
-st.title("Roof")
-st.markdown("""
-<div style="
-background: linear-gradient(90deg, rgba(37,99,235,0.12), rgba(16,185,129,0.12));
-padding: 14px 18px;
-border-radius: 16px;
-margin-bottom: 16px;
-border: 1px solid rgba(37,99,235,0.18);
-">
-<b>Tip:</b> Fields save karne ke baad next page par jao.
-</div>
-""", unsafe_allow_html=True)
-area = st.number_input("Roof area (sq ft)", 0)
+initialize_state()
 
-st.session_state.roof = area
+st.title("🏠 Roof Details")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    roof_area = st.number_input(
+        "Available Roof Area (sq ft)",
+        min_value=0,
+        value=int(st.session_state.roof.get("area_sqft", 500))
+    )
+with col2:
+    shading = st.selectbox(
+        "Shading Level",
+        ["None", "Low", "Medium", "High"],
+        index=["None", "Low", "Medium", "High"].index(
+            st.session_state.roof.get("shading", "Low")
+        )
+    )
+
+if st.button("Save Roof Details"):
+    st.session_state.roof = {
+        "area_sqft": roof_area,
+        "shading": shading,
+    }
+    st.success("Roof details saved.")
