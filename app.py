@@ -21,9 +21,5 @@ st.sidebar.write(f"Battery: {results.get('battery_kwh', 0.0):.2f} kWh")
 st.sidebar.write(f"Cost: PKR {results.get('total_cost', 0):,.0f}")
 
 st.title("🌞 Pakistan Solar Panel Requirement System")
-st.write("Use the left sidebar to open the numbered pages.")
 
-st.info(
-    "Recommended flow: 1) Customer Profile → 2) Appliance Input → "
-    "3) Solar Selection → 4) Backup → 5) Roof → 6) Pricing → 7) Results → 8) Export"
-)
+st.info("Use sidebar → Pages to start")
