@@ -1,185 +1,86 @@
-import streamlit as st
+from io import BytesIO
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
 
-def inject_global_css():
-    st.markdown("""
-    <style>
-    .stApp {
-        background: linear-gradient(135deg, #eef4ff 0%, #edfdf7 100%);
-    }
+def generate_quotation_pdf(profile, appliances, results):
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
 
-    .block-container {
-        max-width: 1200px;
-        padding-top: 1.2rem;
-        padding-bottom: 2rem;
-    }
+    y = height - 40
 
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #08152f 0%, #12285f 55%, #1f3d8a 100%);
-    }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-    }
+    pdf.setFont("Helvetica-Bold", 18)
+    pdf.drawString(40, y, "Pakistan Solar Panel Quotation")
+    y -= 30
 
-    .hero-card {
-        background: linear-gradient(135deg, #2563eb 0%, #06b6d4 55%, #10b981 100%);
-        padding: 26px 28px;
-        border-radius: 28px;
-        color: white;
-        box-shadow: 0 16px 40px rgba(37, 99, 235, 0.22);
-        margin-bottom: 18px;
-    }
+    pdf.setFont("Helvetica", 11)
+    pdf.drawString(40, y, f"Customer: {profile.get('name', 'N/A')}")
+    y -= 18
+    pdf.drawString(40, y, f"Mobile: {profile.get('mobile', 'N/A')}")
+    y -= 18
+    pdf.drawString(40, y, f"City: {profile.get('city', 'N/A')}")
+    y -= 18
+    pdf.drawString(40, y, f"Utility: {profile.get('utility', 'N/A')}")
+    y -= 18
+    pdf.drawString(40, y, f"System Type: {profile.get('system_type', 'N/A')}")
+    y -= 28
 
-    .hero-title {
-        font-size: 2.25rem;
-        font-weight: 800;
-        line-height: 1.15;
-        margin-bottom: 6px;
-    }
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(40, y, "Recommended System")
+    y -= 20
 
-    .hero-subtitle {
-        font-size: 1rem;
-        opacity: 0.95;
-    }
+    pdf.setFont("Helvetica", 11)
+    lines = [
+        f"Solar Size: {results.get('solar_size_kw', 0):.2f} kW",
+        f"Inverter Size: {results.get('inverter_kw', 0)} kW",
+        f"Battery Size: {results.get('battery_kwh', 0):.2f} kWh",
+        f"Panel Wattage: {results.get('panel_watt', 0)} W",
+        f"Number of Panels: {results.get('panel_count', 0)}",
+        f"Monthly Generation: {results.get('monthly_generation', 0):.0f} kWh",
+        f"Monthly Savings: PKR {results.get('monthly_savings', 0):,.0f}",
+        f"Payback: {results.get('payback_years', 0):.1f} years",
+    ]
 
-    .page-card {
-        background: rgba(255,255,255,0.92);
-        padding: 22px;
-        border-radius: 24px;
-        border: 1px solid rgba(226,232,240,0.95);
-        box-shadow: 0 10px 28px rgba(15,23,42,0.07);
-        margin-bottom: 18px;
-    }
+    for line in lines:
+        pdf.drawString(40, y, line)
+        y -= 18
 
-    .metric-card {
-        background: white;
-        border-radius: 22px;
-        padding: 18px 20px;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-        border: 1px solid rgba(226, 232, 240, 0.95);
-        margin-bottom: 14px;
-    }
+    y -= 10
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(40, y, "Cost Breakdown")
+    y -= 20
 
-    .metric-label {
-        font-size: 0.95rem;
-        color: #475569;
-        margin-bottom: 8px;
-        font-weight: 600;
-    }
+    pdf.setFont("Helvetica", 11)
+    cost_lines = [
+        f"Solar Panels Cost: PKR {results.get('panel_cost', 0):,.0f}",
+        f"Battery Cost: PKR {results.get('battery_cost', 0):,.0f}",
+        f"Inverter Cost: PKR {results.get('inverter_cost', 0):,.0f}",
+        f"Installation Cost: PKR {results.get('installation_cost', 0):,.0f}",
+        f"Structure Cost: PKR {results.get('structure_cost', 0):,.0f}",
+        f"BOS / Wiring Cost: PKR {results.get('bos_cost', 0):,.0f}",
+        f"Transport Cost: PKR {results.get('transport_cost', 0):,.0f}",
+        f"Total Project Cost: PKR {results.get('total_cost', 0):,.0f}",
+    ]
 
-    .metric-value {
-        font-size: 1.55rem;
-        font-weight: 800;
-        color: #0f172a;
-    }
+    for line in cost_lines:
+        pdf.drawString(40, y, line)
+        y -= 18
 
-    .section-title {
-        font-size: 1.85rem;
-        font-weight: 800;
-        color: #0f172a;
-        margin-bottom: 10px;
-    }
+    y -= 10
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(40, y, "Selected Appliances")
+    y -= 20
 
-    .note-box {
-        background: linear-gradient(90deg, rgba(37,99,235,0.10), rgba(16,185,129,0.10));
-        border: 1px solid rgba(37,99,235,0.18);
-        padding: 15px 17px;
-        border-radius: 16px;
-        color: #0f172a;
-        font-weight: 500;
-    }
+    pdf.setFont("Helvetica", 10)
+    for a in appliances[:18]:
+        appliance_line = f"{a.get('name')} | {a.get('qty')} x {a.get('watts')}W | {a.get('hours')}h/day"
+        pdf.drawString(40, y, appliance_line)
+        y -= 15
+        if y < 60:
+            pdf.showPage()
+            y = height - 40
+            pdf.setFont("Helvetica", 10)
 
-    .profile-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-        margin-top: 10px;
-    }
-
-    .mini-card {
-        background: white;
-        border-radius: 18px;
-        padding: 16px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 6px 18px rgba(15,23,42,0.05);
-    }
-
-    .mini-label {
-        color: #64748b;
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin-bottom: 6px;
-    }
-
-    .mini-value {
-        color: #0f172a;
-        font-size: 1.02rem;
-        font-weight: 800;
-        word-break: break-word;
-    }
-
-    .stButton > button {
-        background: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
-        color: white;
-        border: none;
-        border-radius: 14px;
-        padding: 0.72rem 1.2rem;
-        font-weight: 700;
-        box-shadow: 0 10px 18px rgba(37, 99, 235, 0.20);
-    }
-
-    .stButton > button:hover {
-        filter: brightness(1.03);
-    }
-
-    .stDownloadButton > button {
-        background: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
-        color: white;
-        border: none;
-        border-radius: 14px;
-        padding: 0.72rem 1.2rem;
-        font-weight: 700;
-    }
-
-    .stTextInput input,
-    .stNumberInput input,
-    .stTextArea textarea,
-    .stSelectbox div[data-baseweb="select"] > div {
-        border-radius: 14px !important;
-    }
-
-    @media (max-width: 900px) {
-        .hero-title {
-            font-size: 1.7rem;
-        }
-        .profile-grid {
-            grid-template-columns: 1fr;
-        }
-        .block-container {
-            padding-left: 0.8rem;
-            padding-right: 0.8rem;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-
-def render_page_header(title, subtitle):
-    st.markdown(f"""
-    <div class="page-card">
-        <div class="section-title">{title}</div>
-        <div class="note-box">{subtitle}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-def render_sidebar(profile, results):
-    st.sidebar.markdown("## ⚡ Quick Summary")
-    st.sidebar.markdown(f"**Customer:** {profile.get('name', 'Not set') or 'Not set'}")
-    st.sidebar.markdown(f"**Mobile:** {profile.get('mobile', 'Not set') or 'Not set'}")
-    st.sidebar.markdown(f"**City:** {profile.get('city', 'Not set') or 'Not set'}")
-    st.sidebar.markdown(f"**Utility:** {profile.get('utility', 'Not set') or 'Not set'}")
-    st.sidebar.markdown(f"**System Type:** {profile.get('system_type', 'Not set') or 'Not set'}")
-    st.sidebar.markdown("---")
-    st.sidebar.markdown(f"**Solar Size:** {results.get('solar_size_kw', 0.0):.2f} kW")
-    st.sidebar.markdown(f"**Battery:** {results.get('battery_kwh', 0.0):.2f} kWh")
-    st.sidebar.markdown(f"**Cost:** PKR {results.get('total_cost', 0):,.0f}")
+    pdf.save()
+    buffer.seek(0)
+    return buffer
