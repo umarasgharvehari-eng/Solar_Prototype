@@ -2,11 +2,22 @@ import streamlit as st
 
 def initialize_state():
     defaults = {
-        "profile": {},
+        "profile": {
+            "name": "",
+            "mobile": "",
+            "city": "",
+            "utility": "",
+            "system_type": "On-Grid",
+            "sanctioned_load": 5.0,
+            "monthly_bill": 15000,
+        },
         "appliances": [],
         "solar_selection": [],
         "backup_hours": 0,
-        "roof": {},
+        "roof": {
+            "area_sqft": 500,
+            "shading": "Low",
+        },
         "pricing": {
             "panel_watt": 585,
             "panel_price_per_watt": 35,
