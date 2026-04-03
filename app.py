@@ -37,6 +37,25 @@ st.markdown(
 
 ### Pages
 Use the left sidebar to open the numbered pages.
+
+import streamlit as st
+from utils.session import initialize_state
+
+initialize_state()
+
+st.set_page_config(page_title="Solar App", layout="wide")
+
+st.sidebar.title("Quick Summary")
+
+profile = st.session_state.get("profile", {})
+
+st.sidebar.write(f"Customer: {profile.get('name', 'Not set')}")
+st.sidebar.write(f"City: {profile.get('city', 'Not set')}")
+st.sidebar.write(f"Utility: {profile.get('utility', 'Not set')}")
+st.sidebar.write(f"System Type: {profile.get('system_type', 'Not set')}")
+
+st.title("🌞 Pakistan Solar Panel Requirement System")
+st.write("Use sidebar to navigate pages.")
 '''
 )
 
