@@ -1,23 +1,25 @@
 import streamlit as st
 
 def initialize_state():
-    if "profile" not in st.session_state:
-        st.session_state.profile = {}
+    defaults = {
+        "profile": {},
+        "appliances": [],
+        "solar_selection": [],
+        "backup_hours": 0,
+        "roof": {},
+        "pricing": {
+            "panel_watt": 585,
+            "panel_price_per_watt": 35,
+            "battery_price_per_kwh": 50000,
+            "inverter_price": 250000,
+            "installation_cost": 80000,
+            "structure_cost": 50000,
+            "bos_cost": 40000,
+            "transport_cost": 15000,
+        },
+        "results": {},
+    }
 
-    if "appliances" not in st.session_state:
-        st.session_state.appliances = []
-
-    if "solar_selection" not in st.session_state:
-        st.session_state.solar_selection = []
-
-    if "backup_hours" not in st.session_state:
-        st.session_state.backup_hours = 0
-
-    if "roof" not in st.session_state:
-        st.session_state.roof = 0
-
-    if "pricing" not in st.session_state:
-        st.session_state.pricing = {}
-
-    if "results" not in st.session_state:
-        st.session_state.results = {}
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
