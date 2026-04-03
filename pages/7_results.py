@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from utils.session import initialize_state
+from utils.ui import inject_global_css, render_sidebar, render_page_header
 from core.calculations import (
     calculate_load,
     calculate_backup_load,
@@ -15,14 +16,16 @@ from core.calculations import (
     calculate_system_cost,
 )
 
+st.set_page_config(page_title="Results", page_icon="📊", layout="wide")
 initialize_state()
+inject_global_css()
 
-st.title("📊 Results Dashboard")
+render_sidebar(st.session_state.profile, st.session_state.results)
+render_page_header("📊 Results Dashboard", "Calculate final solar size, panel count, project cost, and savings.")
 
 if st.button("Calculate System"):
     appliances = st.session_state.appliances
     pricing = st.session_state.pricing
-    profile = st.session_state.profile
     roof = st.session_state.roof
 
     daily_kwh, connected_watts = calculate_load(appliances)
@@ -32,8 +35,6 @@ if st.button("Calculate System"):
     performance_ratio = 0.78
     if shading == "None":
         performance_ratio = 0.80
-    elif shading == "Low":
-        performance_ratio = 0.78
     elif shading == "Medium":
         performance_ratio = 0.72
     elif shading == "High":
@@ -41,13 +42,10 @@ if st.button("Calculate System"):
 
     required_solar_kw = solar_size_required(daily_kwh, sun_hours=5.0, performance_ratio=performance_ratio)
     battery_kwh = battery_size_required(backup_watts, st.session_state.get("backup_hours", 0))
-
     panel_watt = pricing.get("panel_watt", 585)
     panel_count = panel_count_required(required_solar_kw, panel_watt)
     actual_solar_kw = actual_panel_capacity_kw(panel_count, panel_watt)
-
     inverter_kw = recommend_inverter_size(actual_solar_kw)
-
     monthly_generation = estimate_monthly_generation(actual_solar_kw, sun_hours=5.0, performance_ratio=performance_ratio)
     monthly_savings = estimate_monthly_savings(monthly_generation, import_tariff=65)
 
@@ -64,10 +62,9 @@ if st.button("Calculate System"):
         transport_cost=pricing.get("transport_cost", 15000),
     )
 
-    payback_years = estimate_payback_years(costs["total_cost"], monthly_savings)
-
     roof_area = roof.get("area_sqft", 0)
     max_roof_kw = roof_area / 85 if roof_area > 0 else 0
+    payback_years = estimate_payback_years(costs["total_cost"], monthly_savings)
 
     st.session_state.results = {
         "daily_kwh": daily_kwh,
@@ -87,46 +84,31 @@ if st.button("Calculate System"):
         **costs,
     }
 
-results = st.session_state.get("results", {})
+results = st.session_state.results
 
 if results:
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Daily Solar Load", f"{results['daily_kwh']:.2f} kWh")
+    c1.metric("Daily Load", f"{results['daily_kwh']:.2f} kWh")
     c2.metric("Solar Size", f"{results['solar_size_kw']:.2f} kW")
     c3.metric("Panels", f"{results['panel_count']} x {results['panel_watt']}W")
     c4.metric("Total Cost", f"PKR {results['total_cost']:,.0f}")
 
-    st.markdown("### System Recommendation")
+    st.markdown('<div class="page-card">', unsafe_allow_html=True)
+    st.subheader("System Recommendation")
     st.write(f"**Recommended Solar Capacity:** {results['solar_size_kw']:.2f} kW")
     st.write(f"**Recommended Inverter:** {results['inverter_kw']} kW")
     st.write(f"**Battery Size:** {results['battery_kwh']:.2f} kWh")
-    st.write(f"**Panel Watt Each:** {results['panel_watt']} W")
+    st.write(f"**Panel Wattage:** {results['panel_watt']} W")
     st.write(f"**Number of Panels:** {results['panel_count']}")
-    st.write(f"**Total Installed Panel Capacity:** {results['solar_size_kw']:.2f} kW")
-
-    st.markdown("### Energy & Savings")
     st.write(f"**Estimated Monthly Generation:** {results['monthly_generation']:.0f} kWh")
     st.write(f"**Estimated Monthly Savings:** PKR {results['monthly_savings']:,.0f}")
     st.write(f"**Estimated Payback:** {results['payback_years']:.1f} years")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("### Roof Feasibility")
-    st.write(f"**Estimated Max Roof Capacity:** {results['max_roof_kw']:.2f} kW")
-    if results["max_roof_kw"] > 0 and results["solar_size_kw"] > results["max_roof_kw"]:
-        st.warning("Recommended system roof area se zyada hai. Roof space insufficient ho sakti hai.")
-    else:
-        st.success("Roof space looks acceptable for current estimate.")
-
-    st.markdown("### Cost Breakdown")
+    st.markdown('<div class="page-card">', unsafe_allow_html=True)
+    st.subheader("Cost Breakdown")
     cost_df = pd.DataFrame({
-        "Item": [
-            "Solar Panels",
-            "Battery",
-            "Inverter",
-            "Installation",
-            "Structure",
-            "BOS / Wiring",
-            "Transport",
-        ],
+        "Item": ["Solar Panels", "Battery", "Inverter", "Installation", "Structure", "BOS / Wiring", "Transport"],
         "Cost (PKR)": [
             results["panel_cost"],
             results["battery_cost"],
@@ -139,6 +121,6 @@ if results:
     })
     st.dataframe(cost_df, use_container_width=True)
     st.bar_chart(cost_df.set_index("Item"))
-
+    st.markdown("</div>", unsafe_allow_html=True)
 else:
-    st.info("Fill previous pages and click Calculate System.")
+    st.info("Pehle previous pages fill karo, phir Calculate System dabao.")
