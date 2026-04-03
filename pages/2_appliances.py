@@ -8,7 +8,7 @@ initialize_state()
 inject_global_css()
 
 render_sidebar(st.session_state.profile, st.session_state.results)
-render_page_header("🔌 Appliances", "Add home appliances with wattage, quantity, and daily usage hours.")
+render_page_header("🔌 Appliances", "Add, review, and manage home appliances.")
 
 preset = st.selectbox(
     "Quick Appliance Preset",
@@ -55,12 +55,18 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 if st.session_state.appliances:
     st.markdown('<div class="page-card">', unsafe_allow_html=True)
-    st.subheader("Added Appliances")
+    st.subheader("Current Appliances")
     df = pd.DataFrame(st.session_state.appliances)
     st.dataframe(df, use_container_width=True)
-    if st.button("Clear All Appliances"):
-        st.session_state.appliances = []
-        st.success("All appliances cleared.")
+
+    col_a, col_b = st.columns(2)
+    with col_a:
+        if st.button("Clear All Appliances"):
+            st.session_state.appliances = []
+            st.success("All appliances cleared.")
+    with col_b:
+        st.caption("Solar/Backup toggles ko fine-tune karne ke liye Solar Selection page use karo.")
+
     st.markdown("</div>", unsafe_allow_html=True)
 else:
     st.info("No appliances added yet.")
