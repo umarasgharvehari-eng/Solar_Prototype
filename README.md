@@ -1,32 +1,27 @@
 # Pakistan Solar Panel Requirement System
 
-A Streamlit prototype for estimating solar system size, inverter size, battery backup, cost, savings, and payback for Pakistan local users.
-
-## Features
-- Customer profile and utility selection
-- Appliance-based sizing
-- Solar and backup load selection
-- Roof capacity check
-- Pricing and itemized cost estimation
-- Results dashboard with charts
-- PDF proposal export
+Professional Streamlit app for Pakistan-focused solar sizing, battery backup planning, cost estimation, savings calculation, and PDF quotation export.
 
 ## Run locally
+
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## Streamlit Cloud deployment
-1. Push this folder to a GitHub repository.
-2. Open Streamlit Community Cloud.
-3. Connect GitHub and select the repo.
-4. Set `app.py` as the main file.
-5. Deploy.
+## Deploy on Streamlit Cloud
 
-## Recommended repo structure
-Keep all files exactly as they are in this project.
+- Upload all files and folders to GitHub
+- Set main file path to `app.py`
+- Deploy
 
-## Notes
-- Tariffs and prices are editable in the app.
-- This is an MVP estimator, not an engineering design tool.
+## Main features
+
+- Professional UI
+- Customer profile and utility details
+- Appliance-based load sizing
+- On-grid / Hybrid / Off-grid selection
+- Battery backup calculation
+- Roof capacity estimation
+- Costing and savings dashboard
+- PDF quotation export
