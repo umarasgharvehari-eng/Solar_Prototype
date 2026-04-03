@@ -1,22 +1,31 @@
 import streamlit as st
 from utils.session import initialize_state
+from utils.ui import inject_global_css, render_sidebar, render_page_header
 
+st.set_page_config(page_title="Pricing", page_icon="💰", layout="wide")
 initialize_state()
+inject_global_css()
 
-st.title("💰 Pricing & Components")
+render_sidebar(st.session_state.profile, st.session_state.results)
+render_page_header("💰 Pricing & Components", "Set panel wattage and all major project costs.")
 
 pricing = st.session_state.pricing
 
-col1, col2 = st.columns(2)
+st.markdown('<div class="page-card">', unsafe_allow_html=True)
 
-with col1:
-    panel_watt = st.selectbox("Panel Wattage", [545, 550, 575, 580, 585, 590, 600],
-                              index=[545, 550, 575, 580, 585, 590, 600].index(pricing.get("panel_watt", 585)))
+c1, c2 = st.columns(2)
+
+with c1:
+    panel_watt = st.selectbox(
+        "Panel Wattage",
+        [545, 550, 575, 580, 585, 590, 600],
+        index=[545, 550, 575, 580, 585, 590, 600].index(pricing.get("panel_watt", 585))
+    )
     panel_price_per_watt = st.number_input("Panel Price per Watt (PKR)", min_value=1, value=int(pricing.get("panel_price_per_watt", 35)))
     battery_price_per_kwh = st.number_input("Battery Price per kWh (PKR)", min_value=1, value=int(pricing.get("battery_price_per_kwh", 50000)))
     inverter_price = st.number_input("Inverter Price (PKR)", min_value=1, value=int(pricing.get("inverter_price", 250000)))
 
-with col2:
+with c2:
     installation_cost = st.number_input("Installation Cost (PKR)", min_value=0, value=int(pricing.get("installation_cost", 80000)))
     structure_cost = st.number_input("Structure Cost (PKR)", min_value=0, value=int(pricing.get("structure_cost", 50000)))
     bos_cost = st.number_input("BOS / Wiring Cost (PKR)", min_value=0, value=int(pricing.get("bos_cost", 40000)))
@@ -34,3 +43,5 @@ if st.button("Save Pricing"):
         "transport_cost": transport_cost,
     }
     st.success("Pricing saved successfully.")
+
+st.markdown("</div>", unsafe_allow_html=True)
