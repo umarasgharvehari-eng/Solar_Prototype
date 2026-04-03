@@ -1,10 +1,14 @@
 import streamlit as st
 import pandas as pd
 from utils.session import initialize_state
+from utils.ui import inject_global_css, render_sidebar, render_page_header
 
+st.set_page_config(page_title="Appliances", page_icon="🔌", layout="wide")
 initialize_state()
+inject_global_css()
 
-st.title("🔌 Appliances")
+render_sidebar(st.session_state.profile, st.session_state.results)
+render_page_header("🔌 Appliances", "Add home appliances with wattage, quantity, and daily usage hours.")
 
 preset = st.selectbox(
     "Quick Appliance Preset",
@@ -24,21 +28,16 @@ preset_map = {
     "Water Pump": 750,
 }
 
-col1, col2, col3, col4 = st.columns(4)
+st.markdown('<div class="page-card">', unsafe_allow_html=True)
 
-with col1:
+c1, c2 = st.columns(2)
+with c1:
     name = st.text_input("Appliance Name", value="" if preset == "Custom" else preset)
-with col2:
     watts = st.number_input("Watts", min_value=1, value=preset_map[preset])
-with col3:
     qty = st.number_input("Quantity", min_value=1, value=1)
-with col4:
+with c2:
     hours = st.number_input("Hours/Day", min_value=1, max_value=24, value=4)
-
-col5, col6 = st.columns(2)
-with col5:
     on_solar = st.checkbox("Include in Solar", value=True)
-with col6:
     backup_required = st.checkbox("Required in Backup", value=False)
 
 if st.button("Add Appliance"):
@@ -52,13 +51,16 @@ if st.button("Add Appliance"):
     })
     st.success(f"{name} added successfully.")
 
+st.markdown("</div>", unsafe_allow_html=True)
+
 if st.session_state.appliances:
+    st.markdown('<div class="page-card">', unsafe_allow_html=True)
     st.subheader("Added Appliances")
     df = pd.DataFrame(st.session_state.appliances)
     st.dataframe(df, use_container_width=True)
-
     if st.button("Clear All Appliances"):
         st.session_state.appliances = []
         st.success("All appliances cleared.")
+    st.markdown("</div>", unsafe_allow_html=True)
 else:
     st.info("No appliances added yet.")
