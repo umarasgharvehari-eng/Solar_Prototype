@@ -2,7 +2,19 @@ import streamlit as st
 import pandas as pd
 from core.pdf_export import build_pdf
 from utils.ui import top_hero
+st.title("📄 Export PDF Quotation")
 
+st.markdown("""
+<div style="
+background: white;
+padding: 20px;
+border-radius: 20px;
+box-shadow: 0 8px 24px rgba(15,23,42,0.08);
+border: 1px solid #e2e8f0;
+margin-bottom: 18px;">
+Generate a clean client-ready quotation PDF for your solar proposal.
+</div>
+""", unsafe_allow_html=True)
 st.set_page_config(page_title="Export PDF", layout="wide")
 top_hero("Export Quotation", "Professional PDF quotation aur CSV appliances export download karein.")
 
