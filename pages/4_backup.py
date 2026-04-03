@@ -1,17 +1,17 @@
 import streamlit as st
+from utils.session import initialize_state
 
-st.title("Backup")
-st.markdown("""
-<div style="
-background: linear-gradient(90deg, rgba(37,99,235,0.12), rgba(16,185,129,0.12));
-padding: 14px 18px;
-border-radius: 16px;
-margin-bottom: 16px;
-border: 1px solid rgba(37,99,235,0.18);
-">
-<b>Tip:</b> Fields save karne ke baad next page par jao.
-</div>
-""", unsafe_allow_html=True)
-hours = st.slider("Backup hours", 0, 12)
+initialize_state()
 
-st.session_state.backup_hours = hours
+st.title("🔋 Backup Settings")
+
+backup_hours = st.slider(
+    "Required Backup Hours",
+    min_value=0,
+    max_value=12,
+    value=int(st.session_state.get("backup_hours", 0))
+)
+
+st.session_state.backup_hours = backup_hours
+
+st.success(f"Backup hours saved: {backup_hours}")
